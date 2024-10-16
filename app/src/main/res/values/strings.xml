@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">SRI simulation</string>
+    <string name="search_tokens">Search tokens :</string>
+    <string name="params">Params</string>
+    <string name="classic">Classic</string>
+    <string name="clip_by_spaces">clip by spaces</string>
+    <string name="clip_by_all_special_char">clip by all special char</string>
+    <string name="clip_by_all_special_char_but_ignore_char">clip by all special char but ignore \'-\' char</string>
+    <string name="trim_words_so_it_has_only_7_char">trim words so it has only 7 char</string>
+</resources>
