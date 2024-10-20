@@ -52,9 +52,15 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getIsSettingsShown().observe(this,v->{
             binding.settingsDetails.setVisibility(v? View.VISIBLE : View.GONE);
         });
+        viewModel.getIsCalculusShown().observe(this,v->{
+            binding.calculsDetails.setVisibility(v? View.VISIBLE : View.GONE);
+        });
 
         binding.settingsBtn.setOnClickListener(e-> showHideSettings());
         binding.settingsBtnContainer.setOnClickListener(e-> showHideSettings());
+
+        binding.calculsBtn.setOnClickListener(e-> showHideCalculus());
+        binding.calculsBtnContainer.setOnClickListener(e-> showHideCalculus());
 
         binding.searchBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -118,6 +124,191 @@ public class MainActivity extends AppCompatActivity {
             String[] values = viewModel.processInput(v);
             setRecyclerView(filterList(viewModel.docs,values),values);
         });
+
+        viewModel.getDps().observe(this,v->{
+            binding.dnps.setText((viewModel.getDs().getValue()-viewModel.getDps().getValue())+"");
+            binding.dpns.setText((viewModel.getDpt().getValue()-viewModel.getDps().getValue())+"");
+            viewModel.calculatePricision();
+            viewModel.calculateRappel();
+        });
+        binding.dps.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String string = binding.dps.getText().toString();
+                if (!string.equals(binding.dps1.getText().toString()))
+                    binding.dps1.setText(string);
+                if (!string.isEmpty()) {
+                    viewModel.setDps(Integer.parseInt(string));
+                }else{
+                    viewModel.setDps(0);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        binding.dps1.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String string = binding.dps1.getText().toString();
+                if (!string.equals(binding.dps.getText().toString()))
+                    binding.dps.setText(string);
+                if (!string.isEmpty()) {
+                    viewModel.setDps(Integer.parseInt(string));
+                }else{
+                    viewModel.setDps(0);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        viewModel.getDnps().observe(this, v->{
+            if (v == 0 && !binding.dnps.getText().toString().isEmpty())
+                binding.dnps.setText("");
+            viewModel.calculateBruit();
+        });
+        binding.dnps.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String string = binding.dnps.getText().toString();
+                if (!string.isEmpty())
+                    viewModel.setDnps(Integer.parseInt(string));
+                else
+                    viewModel.setDnps(0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        viewModel.getDpns().observe(this,v->{
+            if (v == 0 && !binding.dpns.getText().toString().isEmpty())
+                binding.dpns.setText("");
+            viewModel.calculateSilence();
+        });
+        binding.dpns.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String string = binding.dpns.getText().toString();
+                if (!string.isEmpty())
+                    viewModel.setDpns(Integer.parseInt(string));
+                else
+                    viewModel.setDpns(0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        viewModel.getDpt().observe(this, v->{
+            binding.dpns.setText((viewModel.getDpt().getValue()-viewModel.getDps().getValue())+"");
+            viewModel.calculateRappel();
+            viewModel.calculateSilence();
+        });
+        binding.dpt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Editable text = binding.dpt.getText();
+                binding.dpt1.setText(text.toString());
+                if (!text.toString().isEmpty()) {
+                    viewModel.setDpt(Integer.parseInt(text.toString()));
+                }else
+                    viewModel.setDpt(0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        viewModel.getDs().observe(this, v->{
+            binding.dnps.setText((viewModel.getDs().getValue()-viewModel.getDps().getValue())+"");
+            viewModel.calculatePricision();
+            viewModel.calculateBruit();
+        });
+        binding.ds.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Editable text = binding.ds.getText();
+                binding.ds2.setText(text.toString());
+                if (!text.toString().isEmpty()) {
+                    viewModel.setDs(Integer.parseInt(text.toString()));
+                }else
+                    viewModel.setDs(0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+
+        viewModel.getBruit().observe(this,v->{
+            if (v>=0)
+                binding.bruit.setText("= "+v.toString());
+            else
+                binding.bruit.setText("= NC");
+           // viewModel.calculatePricision();
+        });
+        viewModel.getSilence().observe(this, v->{
+            if (v>=0)
+                binding.silence.setText("= "+v.toString());
+            else
+                binding.silence.setText("= NC");
+            //viewModel.getRappel();
+        });
+        viewModel.getRappel().observe(this, v->{
+            if (v>=0) {
+                binding.rappel.setText("= " + v);
+                binding.rappelResult.setText(v.toString());
+            }
+            else {
+                binding.rappel.setText("= NC");
+                binding.rappelResult.setText("NC");
+            }
+            viewModel.calculateSilence();
+        });
+        viewModel.getPrecision().observe(this,v->{
+            if (v>=0) {
+                binding.precision.setText("= " + v);
+                binding.precisionResult.setText(v.toString());
+            }
+            else {
+                binding.precision.setText("= NC");
+                binding.precisionResult.setText("NC");
+            }
+            viewModel.calculateBruit();
+        });
     }
 
     private void showAddDocPopup() {
@@ -176,5 +367,11 @@ public class MainActivity extends AppCompatActivity {
             viewModel.hideSettings();
         else
             viewModel.showSettings();
+    }
+    private void showHideCalculus(){
+        if (Boolean.TRUE.equals(viewModel.getIsCalculusShown().getValue()))
+            viewModel.hideCalculus();
+        else
+            viewModel.showCalculus();
     }
 }

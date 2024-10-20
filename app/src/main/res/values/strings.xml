@@ -11,4 +11,12 @@
     <string name="ignore_case">ignore case</string>
     <string name="delete_mot_vide">Delete \'mot vide\'</string>
     <string name="performance">Performance</string>
+    <string name="precision">precision =</string>
+    <string name="nc">= NC</string>
+    <string name="rappel">rappel =</string>
+    <string name="nc1">= NC</string>
+    <string name="bruit">bruit =</string>
+    <string name="eq">=</string>
+    <string name="_1">1 -</string>
+    <string name="silence">silence =</string>
 </resources>
