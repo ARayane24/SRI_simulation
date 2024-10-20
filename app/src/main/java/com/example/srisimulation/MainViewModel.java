@@ -121,43 +121,63 @@ public class MainViewModel extends ViewModel {
     public String[] processInput(String string) {
         string = string.trim();
         LinkedList<String> result = new LinkedList<>();
-        if (Boolean.TRUE.equals(ignoreCase.getValue()))
-           string = string.toLowerCase();
-        if (Boolean.TRUE.equals(clipBySpaces.getValue()) && Boolean.TRUE.equals(clipByAllSpecialChar.getValue()) && Boolean.TRUE.equals(clipByAllSpecialCharButIgnoreChar.getValue()))
-            result.addAll(Arrays.asList(string.split("[\\s|\\W&&[^-]]+")));
-        else if (Boolean.TRUE.equals(clipBySpaces.getValue()) && Boolean.TRUE.equals(clipByAllSpecialChar.getValue()))
-            result.addAll(Arrays.asList(string.split("[\\s|\\W]+")));
-        else if (Boolean.TRUE.equals(clipBySpaces.getValue()))
-            result.addAll(Arrays.asList(string.split(" ")));
-        else if (Boolean.TRUE.equals(clipByAllSpecialChar.getValue()) && Boolean.TRUE.equals(clipByAllSpecialCharButIgnoreChar.getValue()))
-            result.addAll(Arrays.asList(string.split("[\\W&&[^-]]+")));
-        else if (Boolean.TRUE.equals(clipByAllSpecialChar.getValue()))
-            result.addAll(Arrays.asList(string.split("[\\W]+")));
+        string = ignoreCase(string);
+        clip(string, result);
 
         if (result.isEmpty())
             result.add(string);
 
-        if (Boolean.TRUE.equals(trimWordsSoItHasOnly7Char.getValue()))
+        trim(result);
+        clearMotVides(result);
+        return result.toArray(new String[0]);
+    }
+
+    private void clearMotVides(LinkedList<String> result) {
+        if (getValueOfMutable(getBox(BOX_DELETE_MOT_VIDE)))
+            for (int i = 0; i < result.size(); i++) {
+                if (result.get(i).length() <= 3 || checkStringInList(result.get(i),motvides))
+                    result.remove(i);
+            }
+    }
+
+    private void trim(LinkedList<String> result) {
+        if (getValueOfMutable(getBox(BOX_trimWordsSoItHasOnly7Char)))
             for (int i = 0; i < result.size(); i++) {
                 String originalString = result.get(i);
                 String res = originalString.length() > 7 ? originalString.substring(0, 7) : originalString;
                 result.remove(i);
                 result.add(i,res);
             }
-
-        if (Boolean.TRUE.equals(DELETE_MOT_VIDE.getValue()))
-            for (int i = 0; i < result.size(); i++) {
-                if (result.get(i).length() <= 3 || checkStringInList(result.get(i),motvides))
-                    result.remove(i);
-            }
-        return result.toArray(new String[0]);
     }
+
+    private void clip(String string, LinkedList<String> result) {
+        if (getValueOfMutable(getBox(BOX_clipBySpaces)) && getValueOfMutable(getBox(BOX_clipByAllSpecialChar)) && getValueOfMutable(getBox(BOX_clipByAllSpecialCharButIgnoreChar)))
+            result.addAll(Arrays.asList(string.split("[\\s|\\W&&[^-]]+")));
+        else if (getValueOfMutable(getBox(BOX_clipBySpaces)) && getValueOfMutable(getBox(BOX_clipByAllSpecialChar)) )
+            result.addAll(Arrays.asList(string.split("[\\s|\\W]+")));
+        else if (getValueOfMutable(getBox(BOX_clipBySpaces)))
+            result.addAll(Arrays.asList(string.split(" ")));
+        else if (getValueOfMutable(getBox(BOX_clipByAllSpecialChar)) && getValueOfMutable(getBox(BOX_clipByAllSpecialCharButIgnoreChar)))
+            result.addAll(Arrays.asList(string.split("[\\W&&[^-]]+")));
+        else if (getValueOfMutable(getBox(BOX_clipByAllSpecialChar)))
+            result.addAll(Arrays.asList(string.split("[\\W]+")));
+    }
+
+    private String ignoreCase(String string) {
+        if (getValueOfMutable(getBox(BOX_ignoreCase)))
+           string = string.toLowerCase();
+        return string;
+    }
+
     public static boolean checkStringInList(String searchFor, List<String> listToSearchIn){
         for (String v : listToSearchIn) {
             if (searchFor.equals(v))
                 return true;
         }
         return false;
+    }
+    public static boolean getValueOfMutable(MutableLiveData<Boolean> data){
+        return Boolean.TRUE.equals(data.getValue());
     }
 
 
@@ -168,28 +188,16 @@ public class MainViewModel extends ViewModel {
     final static  int BOX_clipByAllSpecialCharButIgnoreChar= 3;
     final static  int BOX_trimWordsSoItHasOnly7Char= 4;
     final static  int BOX_DELETE_MOT_VIDE= 5;
-    private final MutableLiveData<Boolean> ignoreCase = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> clipBySpaces = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> clipByAllSpecialChar = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> clipByAllSpecialCharButIgnoreChar = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> trimWordsSoItHasOnly7Char = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> DELETE_MOT_VIDE = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean>[] classicParams =new MutableLiveData[]{new MutableLiveData(false),new MutableLiveData(false)
+            ,new MutableLiveData(false),new MutableLiveData(false),new MutableLiveData(false),new MutableLiveData(false)};
     public MutableLiveData<Boolean> getBox(int index) {
-        switch (index){
-            case BOX_ignoreCase: return ignoreCase;
-            case BOX_clipBySpaces: return clipBySpaces;
-            case BOX_clipByAllSpecialChar: return clipByAllSpecialChar;
-            case BOX_clipByAllSpecialCharButIgnoreChar: return clipByAllSpecialCharButIgnoreChar;
-            case BOX_trimWordsSoItHasOnly7Char: return trimWordsSoItHasOnly7Char;
-            case BOX_DELETE_MOT_VIDE: return DELETE_MOT_VIDE;
-            default: return null;
-        }
+        return classicParams[index];
     }
 
 
 
     List<String> docs = new LinkedList<>();
-    MutableLiveData<Integer> numberDocs = new MutableLiveData<>(0);
+    private final MutableLiveData<Integer> numberDocs = new MutableLiveData<>(0);
     public LiveData<Integer> getNumberDocs() {
         return numberDocs;
     }
