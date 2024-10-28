@@ -5,6 +5,7 @@ import static com.example.srisimulation.MainViewModel.BOX_clipByAllSpecialChar;
 import static com.example.srisimulation.MainViewModel.BOX_clipByAllSpecialCharButIgnoreChar;
 import static com.example.srisimulation.MainViewModel.BOX_clipBySpaces;
 import static com.example.srisimulation.MainViewModel.BOX_ignoreCase;
+import static com.example.srisimulation.MainViewModel.BOX_n_gram;
 import static com.example.srisimulation.MainViewModel.BOX_trimWordsSoItHasOnly7Char;
 
 import android.app.Dialog;
@@ -15,6 +16,7 @@ import android.text.Editable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -29,6 +31,7 @@ import com.example.srisimulation.databinding.ActivityMainBinding;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -96,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
             String v = viewModel.getSearchString().getValue();
             assert v != null;
             String[] values = viewModel.processInput(v);
-            setRecyclerView(filterList(viewModel.docs,values),values);
+            viewModel.nGram(viewModel.docs);
+            setRecyclerView(viewModel.getBox(BOX_n_gram).getValue() ? ngramFilterList(viewModel.docs,viewModel.getDocsCopy().getValue(),values)  : filterList(viewModel.docs, values),values);
         });
     }
 
@@ -107,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         binding.clipByAllSpecialChar.setOnClickListener(v-> viewModel.getBox(BOX_clipByAllSpecialChar).setValue(binding.clipByAllSpecialChar.isChecked()));
         binding.clipByAllSpecialCharButIgnoreChar.setOnClickListener(v-> viewModel.getBox(BOX_clipByAllSpecialCharButIgnoreChar).setValue(binding.clipByAllSpecialCharButIgnoreChar.isChecked()));
         binding.trimWordsSoItHasOnly7Char.setOnClickListener(v-> viewModel.getBox(BOX_trimWordsSoItHasOnly7Char).setValue(binding.trimWordsSoItHasOnly7Char.isChecked()));
+        binding.nGram.setOnClickListener(v-> viewModel.getBox(BOX_n_gram).setValue(binding.nGram.isChecked()));
 
         for (int i = BOX_ignoreCase ; i <= BOX_DELETE_MOT_VIDE ; i++)
             viewModel.getBox(i).observe(this,v-> viewModel.setSearchString(viewModel.getSearchString().getValue()));
@@ -117,6 +122,43 @@ public class MainActivity extends AppCompatActivity {
             if (!v){
                 binding.clipByAllSpecialCharButIgnoreChar.setChecked(v);
                 binding.clipByAllSpecialCharButIgnoreChar.callOnClick();
+            }
+        });
+
+        viewModel.getBox(BOX_trimWordsSoItHasOnly7Char).observe(this,v-> binding.nGram.setEnabled(!v));
+        viewModel.getBox(BOX_n_gram).observe(this,v-> {
+            binding.trimWordsSoItHasOnly7Char.setEnabled(!v);
+            binding.seek.setVisibility(v? View.VISIBLE: View.GONE);
+        });
+
+        binding.seek.setMax(100);
+        binding.seek.setProgress(1);
+        binding.seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                viewModel.getTHRESHOLD().setValue((double) progress/100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        ReentrantLock lock = new ReentrantLock();
+
+        viewModel.getTHRESHOLD().observe(this,v->{
+            binding.nGram.setText(this.getString(R.string.n_gram_algo_n_2)+(v*100)+"%)");
+            lock.lock();
+            try {
+                // Critical section of code
+                viewModel.setSearchString(viewModel.getSearchString().getValue());
+            } finally {
+                lock.unlock();
             }
         });
     }
@@ -270,7 +312,8 @@ public class MainActivity extends AppCompatActivity {
                     binding.tokensList.addView(text);
                 }
             }
-            List<String> docs = filterList(viewModel.docs, values);
+            viewModel.nGram(viewModel.docs);
+            List<String> docs = viewModel.getBox(BOX_n_gram).getValue() ? ngramFilterList(viewModel.docs,viewModel.getDocsCopy().getValue(),values)  : filterList(viewModel.docs, values);
             setRecyclerView(docs,values);
             binding.selectedDocs.setText("Selected : "+(v.isEmpty() ? 0 : docs.size()) );
         });
@@ -302,12 +345,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<String> filterList(List<String> docs, String[] values) {
-        if (values == null || values[0].isEmpty()) return docs;
+        if (values == null ||values.length == 0 || values[0].isEmpty()) return docs;
         List<String> result = new LinkedList<>();
         for (int i = 0; i < docs.size(); i++) {
             String[] v = viewModel.processInput(docs.get(i));
             if(MainViewModel.checkStringInList(v,values))
                 result.add(docs.get(i));
+        }
+        return result;
+    }
+
+    private List<String> ngramFilterList(List<String> docs,List<LinkedList<String>> ngramResult, String[] values) {
+        if (values == null || values.length == 0 || values[0].isEmpty()) return docs;
+        List<String> result = new LinkedList<>();
+        for (int i = 0; i < docs.size(); i++) {
+            for (int j = 0; j < ngramResult.get(i).size(); j++) {
+                boolean ended = false;
+                for (int k = 0; k < values.length; k++) {
+                    String root = MainViewModel.sharedRoot(
+                            viewModel.clipToGram(values[k], viewModel.getGRAM().getValue()),
+                            viewModel.clipToGram(ngramResult.get(i).get(j), viewModel.getGRAM().getValue()),
+                            viewModel.getTHRESHOLD().getValue());
+
+                    if (root != null){
+                        result.add(docs.get(i));
+                        ended = true;
+                        break;
+                    }
+                }
+                if (ended)
+                    break;
+            }
         }
         return result;
     }

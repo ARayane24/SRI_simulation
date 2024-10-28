@@ -41,11 +41,18 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
         ((TextView) holder.view.findViewById(R.id.text)).setText(items.get(position));
         clearAllElements(holder.view);
         if (items.get(position) != null && !items.get(position).isEmpty()){
-            String[] values = viewModel.processInput(items.get(position));
+            String[] values;
+            if (viewModel.getBox(MainViewModel.BOX_n_gram).getValue()){
+                String currentItem = items.get(position);
+                values = viewModel.getDocsCopy().getValue().get(viewModel.docs.indexOf(currentItem)).toArray(new String[0]);
+            }else {
+                values = viewModel.processInput(items.get(position));
+            }
+
             for (String s : values) {
                 TextView text = new TextView(holder.view.getContext());
                 text.setText("{"+s+"}");
-                if (searchValues != null && MainViewModel.checkStringInList(s,searchValues)){
+                if (searchValues != null && (MainViewModel.checkStringInList(s,searchValues) || viewModel.sharedRoot(s,searchValues))){
                     text.setTextColor(Color.BLUE);
                 }
                 text.setPadding(20,0,20,0);

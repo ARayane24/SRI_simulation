@@ -82,6 +82,12 @@
                     android:textSize="15sp"
                     android:textStyle="bold"/>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lexical_analyses"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
                 <CheckBox
                     android:id="@+id/ignore_case"
                     android:layout_width="match_parent"
@@ -92,11 +98,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/clip_by_spaces"/>
-                <CheckBox
-                    android:id="@+id/supp_mot_vide"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/delete_mot_vide"/>
                 <CheckBox
                     android:id="@+id/clip_by_all_special_char"
                     android:layout_width="match_parent"
@@ -109,10 +110,31 @@
                     android:enabled="false"
                     android:text="@string/ignore_char"/>
                 <CheckBox
+                    android:id="@+id/supp_mot_vide"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delete_mot_vide"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/normalisation_la_racinisation"
+                    android:textSize="15sp"
+                    android:textStyle="bold"/>
+                <CheckBox
                     android:id="@+id/trim_words_so_it_has_only_7_char"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/trim_words_so_it_has_only_7_char"/>
+                <CheckBox
+                    android:id="@+id/n_gram"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/n_gram_algo_n_2"/>
+                <SeekBar
+                    android:id="@+id/seek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
             </LinearLayout>
 
 
@@ -147,7 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/block1"
@@ -508,6 +530,7 @@
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:paddingBottom="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

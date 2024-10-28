@@ -21,4 +21,7 @@
     <string name="_1">1 -</string>
     <string name="silence">silence =</string>
     <string name="total_docs">"Total docs : "</string>
+    <string name="lexical_analyses">lexical-analyses:</string>
+    <string name="normalisation_la_racinisation">Normalisation (la racinisation): </string>
+    <string name="n_gram_algo_n_2">n-gram algo (n=2, threshold= </string>
 </resources>
