@@ -388,13 +388,30 @@ public class MainViewModel extends ViewModel {
         root.append(lastPart.charAt(lastPart.length()-1));
         return calculateSimilarity(similar,grams1.length,grams2.length) > threshold ? root.toString() : null;
     }
-    public boolean sharedRoot(String s1 , List<String> s2 ){
-        for (int i = 0; i < s2.size(); i++) {
-            if (sharedRoot(clipToGram(s1,getGRAM().getValue()),clipToGram(s2.get(i),getGRAM().getValue()),getTHRESHOLD().getValue()) != null){
-                return true;
-            }
+    public static double sharedRoot(String[] grams1, String[] grams2){
+        String[] small = grams1.length < grams2.length ? grams1 : grams2 ;
+        double similar = 0 ;
+        StringBuilder root= new StringBuilder();
+
+        int i;
+        for ( i = 0; i < small.length; i++) {
+            if (!grams1[i].equals(grams2[i]))
+                break;
+            root.append(small[i].charAt(0));
+            similar++;
         }
-        return false;
+        String lastPart = small[i>0 ? i - 1:0];
+        if (lastPart.isEmpty()) return 0.0;
+        root.append(lastPart.charAt(lastPart.length()-1));
+        return calculateSimilarity(similar,grams1.length,grams2.length);
+    }
+    public double sharedRoot(String s1 , List<String> s2 ){
+        for (int i = 0; i < s2.size(); i++) {
+            double v = sharedRoot(clipToGram(s1, getGRAM().getValue()), clipToGram(s2.get(i), getGRAM().getValue()));
+            if (v > getTHRESHOLD().getValue())
+                return v;
+        }
+        return .0;
     }
     private static double calculateSimilarity(double numberSimilar, int lengthGram1, int lengthGram2){
         return 2*numberSimilar/(lengthGram1+lengthGram2);

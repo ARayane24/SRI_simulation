@@ -51,10 +51,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 
             for (String s : values) {
                 TextView text = new TextView(holder.view.getContext());
-                text.setText("{"+s+"}");
-                if (searchValues != null && (MainViewModel.checkStringInList(s,searchValues) || viewModel.sharedRoot(s,searchValues))){
+                String text1 = "{" + s;
+                if (searchValues != null && (MainViewModel.checkStringInList(s,searchValues) || viewModel.sharedRoot(s, searchValues) > viewModel.getTHRESHOLD().getValue() )){
                     text.setTextColor(Color.BLUE);
+                    text1 += viewModel.getBox(MainViewModel.BOX_n_gram).getValue()? ",similarity : "+viewModel.sharedRoot(s, searchValues)*100+"% " : "" ;
                 }
+                text.setText(text1+"}");
                 text.setPadding(20,0,20,0);
                 ((LinearLayout) holder.view.findViewById(R.id.tokens_list)).addView(text);
             }
